@@ -82,6 +82,9 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
 .power .ptrack{width:130px;height:12px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:#eee;margin-top:3px;}
 .power .pfill{height:100%;width:100%;}
 @keyframes popin{0%{transform:scale(.3)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+.friends{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;gap:8px;pointer-events:none;}
+.friends .fr{width:62px;height:62px;border-radius:50%;border:4px solid var(--ink);box-shadow:0 5px 0 var(--ink);display:flex;justify-content:center;align-items:flex-start;overflow:hidden;animation:popin .35s ease;box-sizing:border-box;}
+.friends .fr svg{width:52px;height:auto;margin-top:4px;flex:0 0 auto;}
 
 .hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26%);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;}
 .hint .dot{width:70px;height:70px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 4px var(--ink);animation:tap 1.1s ease-in-out infinite;background:rgba(255,255,255,.25);}
@@ -137,7 +140,12 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
 .squad .nm{font-family:var(--display);font-size:clamp(12px,1.6vw,17px);color:#fff;text-shadow:var(--outline);white-space:nowrap;letter-spacing:.03em;}
 @keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .head{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(40px,6.5vw,72px);letter-spacing:.03em;line-height:1;color:#fff;text-shadow:var(--outline-big);}
-.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1.8vw,18px);width:min(920px,100%);}
+.tabs{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.tab{font-family:var(--display);font-size:clamp(22px,3vw,30px);letter-spacing:.05em;line-height:1;min-height:60px;padding:14px 30px 8px;border:5px solid var(--ink);border-radius:999px;background:#fff;color:var(--ink);box-shadow:0 6px 0 var(--ink);cursor:pointer;}
+.tab.on{background:var(--sun);}
+.tab:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink);}
+.tab:focus-visible{outline:5px solid #fff;outline-offset:4px;}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1.8vw,18px);width:min(920px,100%,112vh);}
 @media (max-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
 .lvl{position:relative;aspect-ratio:1/1;max-width:100%;border:5px solid var(--ink);border-radius:26px;box-shadow:0 7px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;overflow:hidden;padding:6px;box-sizing:border-box;}
 .lvl:active{transform:translateY(5px);box-shadow:0 2px 0 var(--ink);}
@@ -194,6 +202,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
     <div class="pface" id="pface"></div>
     <div><div class="pname" id="pname">Red Blaze</div><div class="ptrack"><div class="pfill" id="pfill"></div></div></div>
   </div>
+  <div class="friends" id="friends"></div>
   <div class="hint" id="hint" hidden><div class="dot"></div><div class="ht">Touch and hold to shoot!</div></div>
 </div>
 
@@ -213,9 +222,10 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
 
 <section class="screen dim" id="levels" hidden>
   <h2 class="head">Pick a Level</h2>
+  <div class="tabs"><button class="tab" id="tabW1" data-w="0">WORLD 1</button><button class="tab" id="tabW2" data-w="1">WORLD 2</button></div>
   <div class="grid" id="grid"></div>
   <div class="row"><button class="btn sky small" id="btnBackLv">BACK</button></div>
-  <button class="linkish" id="btnUnlock">Grown-ups: unlock all 10 levels</button>
+  <button class="linkish" id="btnUnlock">Grown-ups: unlock all 20 levels</button>
 </section>
 
 <section class="screen dim" id="pause" hidden>
@@ -231,7 +241,7 @@ button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-
 <section class="screen dim" id="victory" hidden>
   <div class="card">
     <h2 class="head">You did it!</h2>
-    <p class="sub">All 10 levels done. Rainbow Land is safe and the Star Squad says <b>thank you!</b></p>
+    <p class="sub">All 20 levels done. Everyone is safe and the Star Squad says <b>thank you!</b></p>
     <div class="squad" id="squadWin"></div>
     <p class="sub" id="winStars"></p>
     <div class="row"><button class="btn big" id="btnWinHome">YAY!</button></div>
@@ -259,9 +269,20 @@ const _a = new V3(), _b = new V3(), _c = new V3(), _p = new V3(), _q = new V3(),
 
 /* ================= save ================= */
 const SAVE_KEY = 'zombiePopTruck.v1';
+const NUM_LEVELS = 20;
 function loadSave() {
-  try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && Array.isArray(s.stars) && s.stars.length === 10) return s; } catch (e) {}
-  return { unlocked: 1, stars: [0,0,0,0,0,0,0,0,0,0], muted: false, shot: false };
+  try {
+    const s = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (s && Array.isArray(s.stars)) {
+      // older saves have 10 levels: keep their stars and pad up to 20
+      const stars = s.stars.slice(0, NUM_LEVELS).map(v => clamp(Math.floor(+v) || 0, 0, 3));
+      while (stars.length < NUM_LEVELS) stars.push(0);
+      let unlocked = clamp(Math.floor(+s.unlocked) || 1, 1, NUM_LEVELS);
+      stars.forEach((v, k) => { if (v > 0) unlocked = Math.max(unlocked, Math.min(NUM_LEVELS, k + 2)); });
+      return { unlocked, stars, muted: !!s.muted, shot: !!s.shot };
+    }
+  } catch (e) {}
+  return { unlocked: 1, stars: new Array(NUM_LEVELS).fill(0), muted: false, shot: false };
 }
 const save = loadSave();
 function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
@@ -312,8 +333,36 @@ const LEVELS = [
   { name: 'Neon Night',    sky: 0x1c1147, horizon: 0x5a36a0, ground: 0x2a1d5e, spot: 0x3a2a7a, road: 0x241b48, edge: 0x35f0ff, dash: 0xff5fd2, rock: 0x5a4a9a, props: ['building','building','building','lamp','lamp'], hills: 'mountains', hillC: 0x3a2a86, night: true, grid: true, jump: true, boss: 'NEON NED' },
   { name: 'Volcano Valley',sky: 0xff7045, horizon: 0xffc79a, ground: 0x7a4f4a, spot: 0x68403c, road: 0x4a3432, edge: 0xffd23f, dash: 0xff8c42, rock: 0x4d3636, props: ['rock','rock','lava','lava','crystal','crystal'], hills: 'mountains', hillC: 0x7a3a3a, volcano: true, arches: true, boss: 'LAVA LOU' },
   { name: 'Rainbow Castle',sky: 0xa47cff, horizon: 0xffe4fb, ground: 0x98e58f, spot: 0x80d677, road: 0xffd6f0, edge: 0xffffff, dash: 0xb18cff, rock: 0xd8c8ff, props: ['tower','cloudtree','cloudtree','flower','flower','gumdrop'], hills: 'hills', hillC: 0xc2a0ff, castle: true, mega: true, jump: true, arches: true, boss: 'KING ZOMBO' },
+  // ----- World 2 -----
+  { name: 'Pirate Cove',   sky: 0xff8f6a, horizon: 0xffdca6, ground: 0xffe29a, spot: 0xf2cc70, road: 0xb88a5a, edge: 0xffffff, dash: 0xff5fa2, rock: 0x9a8a7a, props: ['palm','palm','barrel','barrel','chest','rock'], hills: 'hills', hillC: 0x5cb86a, ocean: true, arches: true, boss: 'CAPTAIN GOO', bossStyle: 'sway', bossHat: 'pirate' },
+  { name: 'Moon Base',     sky: 0x14103a, horizon: 0x3d3880, ground: 0xc9c9dc, spot: 0xa9a9c2, road: 0x5e5a84, edge: 0x35f0ff, dash: 0xffd23f, rock: 0x9a9ab8, props: ['crater','crater','rocket','rock','rock','crater'], hills: 'mesas', hillC: 0x8a88b0, night: true, planet: true, jump: true, boss: 'SPACE SPUD', bossStyle: 'hop', bossHat: 'astronaut' },
+  { name: 'Bubble Reef',   sky: 0x22c7c9, horizon: 0xa6fff0, ground: 0xffe7a8, spot: 0xf5d58a, road: 0xe0b878, edge: 0xff7a9a, dash: 0xffffff, rock: 0xa08a9a, props: ['coral','coral','seaweed','seaweed','rock','coral'], hills: 'hills', hillC: 0x1fa3a8, fogNear: 28, fogFar: 140, bubbleSky: true, arches: true, boss: 'BUBBLES BOB', bossStyle: 'fly' },
+  { name: 'Dino Valley',   sky: 0x6fd8b0, horizon: 0xeaffdc, ground: 0x6fcf4f, spot: 0x58b83f, road: 0xc08a52, edge: 0xffd23f, dash: 0xffffff, rock: 0x8a9a7a, props: ['dinoegg','dinoegg','jungle','bush','rock','jungle'], hills: 'hills', hillC: 0x3a9a55, volcano: true, jump: true, boss: 'DINO DAVE', bossStyle: 'stomp', bossHat: 'viking', bossMinions: 3 },
+  { name: 'Toy Town',      sky: 0x5fb8ff, horizon: 0xfff0d6, ground: 0x9be07a, spot: 0x86cf66, road: 0x6a8cff, edge: 0xffd23f, dash: 0xffffff, rock: 0xffb0d8, props: ['blocks','blocks','ball','ball','tower','blocks'], hills: 'hills', hillC: 0xff9fd6, mega: true, arches: true, boss: 'ROBO ROB', bossStyle: 'sway', bossHat: 'propeller' },
+  { name: 'Crystal Caves', sky: 0x2a1450, horizon: 0x6a3aa8, ground: 0x3a2468, spot: 0x4a2e80, road: 0x2a1a50, edge: 0xff5fd2, dash: 0x35f0ff, rock: 0x6a4aa8, props: ['crystal','crystal','glowshroom','glowshroom','rock','crystal'], hills: 'mountains', hillC: 0x4a2a86, night: true, jump: true, boss: 'GEM GUS', bossStyle: 'hop', bossHat: 'wizard' },
+  { name: 'Sky Islands',   sky: 0x9fd8ff, horizon: 0xfff0fa, ground: 0xffffff, spot: 0xeaf2ff, road: 0xff9fd0, edge: 0xffffff, dash: 0xfff08a, rock: 0xd8e4ff, props: ['cloudtree','cloudtree','gumdrop','gumdrop','gumdrop','cloudtree'], hills: 'hills', hillC: 0xffe0f4, arches: true, boss: 'BARON BALLOON', bossStyle: 'fly', bossHat: 'tophat', bossBalloons: true },
+  { name: 'Wild West',     sky: 0x5fc0ff, horizon: 0xffe9c0, ground: 0xf0b870, spot: 0xe0a55a, road: 0xb07a48, edge: 0xffffff, dash: 0xffd23f, rock: 0xc07a50, props: ['cactus','cactus','barrel','hay','rock','cactus'], hills: 'mesas', hillC: 0xd0683a, jump: true, boss: 'COWBOY CLEM', bossStyle: 'sway', bossHat: 'cowboy' },
+  { name: 'Ice Fortress',  sky: 0x6ab8ff, horizon: 0xe6f6ff, ground: 0xf4faff, spot: 0xd6ebff, road: 0x7a9ac8, edge: 0x9fe8ff, dash: 0xffffff, rock: 0xcfe3ff, props: ['pine','pine','snowman','crystal','crystal','pine'], hills: 'mountains', hillC: 0x8cb8ff, snowcap: true, crystalC: [0x9fe8ff, 0xcff4ff, 0x7fd0ff], arches: true, boss: 'FROSTY FRAN', bossStyle: 'hop', bossHat: 'viking' },
+  { name: "Zombo's Party Palace", sky: 0x2a1560, horizon: 0x8a4ac8, ground: 0x3a2a7a, spot: 0x4a3a8a, road: 0x2e2064, edge: 0xffd23f, dash: 0xff5fd2, rock: 0x6a5aa8, props: ['tower','lamp','lamp','crystal','crystal','tower'], hills: 'mountains', hillC: 0x5a3aa0, night: true, castle: true, mega: true, jump: true, boss: 'EMPEROR ZOMBO', bossStyle: 'grow', bossHat: 'crown' },
 ];
+LEVELS.forEach(T => { T.bossStyle = T.bossStyle || 'stomp'; T.bossHat = T.bossHat || (T.mega ? 'crown' : 'party'); });
 function diff(i) {
+  if (i >= 10) {
+    const k = i - 9;
+    return {
+      truckSpeed: 13.3 + k * 0.25,
+      duration: 90 + k * 1.5,
+      spawnEvery: 0.75,
+      zSpeed: Math.min(4.6, 1.5 + i * 0.28),
+      zHP: Math.min(4, 1 + Math.floor(i / 4)),
+      maxZ: Math.min(24, Math.round(5 + i * 1.6)),
+      horde: Math.min(30, 6 + i * 2),
+      tough: Math.min(0.3, 0.06 + i * 0.02),
+      runner: Math.min(0.3, 0.08 + i * 0.015),
+      bossHP: [110, 120, 130, 140, 190, 150, 160, 170, 180, 260][i - 10],
+      bossSpeed: 0.9 + Math.min(i, 14) * 0.09,
+    };
+  }
   return {
     truckSpeed: 7 + i * 0.7,
     duration: 50 + i * 4.5,
@@ -364,6 +413,7 @@ const GEO = {
   arch: new THREE.TorusGeometry(5.4, 0.5, 10, 32, Math.PI),
   hook: new THREE.TorusGeometry(0.45, 0.17, 8, 16, Math.PI),
   ring: new THREE.TorusGeometry(1.7, 0.08, 8, 40),
+  rim: new THREE.TorusGeometry(1, 0.3, 6, 18),
   circle: new THREE.CircleGeometry(1, 28),
   star: new THREE.ShapeGeometry(starShape(1, 0.45)),
   bullet: new THREE.BoxGeometry(0.17, 0.17, 1.3),
@@ -516,14 +566,65 @@ const PROP = {
   lava: { min: 6, max: 26, make: () => {
     const g = new THREE.Group(); const a = M(GEO.circle, basic(0xff6a1a), 0, 0.05, 0, rand(1.8, 3.4)); a.rotation.x = -Math.PI / 2; g.add(a);
     const b = M(GEO.circle, basic(0xffd23f), 0.3, 0.07, 0.2, a.scale.x * 0.45); b.rotation.x = -Math.PI / 2; g.add(b); return g; } },
-  crystal: { min: 5.5, max: 24, make: () => {
-    const g = new THREE.Group(); const c = pick([0xff5fd2, 0x35f0ff, 0xb57aff, 0xffd23f]);
+  crystal: { min: 5.5, max: 24, make: (T) => {
+    const g = new THREE.Group(); const c = pick(T.crystalC || [0xff5fd2, 0x35f0ff, 0xb57aff, 0xffd23f]);
     for (let k = 0; k < 3; k++) { const m = M(GEO.cone, toon(c), (k - 1) * 0.5, 1.0, rand(-0.2, 0.2), 0.35, rand(1.6, 2.6), 0.35); m.rotation.z = (k - 1) * 0.35; g.add(m); }
     return g; } },
   tower: { min: 10, max: 28, make: () => {
     const g = new THREE.Group(); const h = rand(6, 10);
     g.add(M(GEO.cyl, lam(pick(PASTEL)), 0, h / 2, 0, 1.3, h, 1.3)); g.add(M(GEO.cone, lam(0xff5fb8), 0, h + 1.4, 0, 1.7, 2.8, 1.7));
     g.add(M(GEO.box, lam(0xffd23f), 0.35, h + 3.2, 0, 0.7, 0.4, 0.05)); return g; } },
+  barrel: { min: 5, max: 20, make: () => {
+    const g = new THREE.Group(); const band = lam(0x5a3a2a);
+    g.add(M(GEO.cyl, lam(0xa8683a), 0, 0.7, 0, 0.62, 1.4, 0.62));
+    g.add(M(GEO.cyl, band, 0, 0.3, 0, 0.66, 0.12, 0.66)); g.add(M(GEO.cyl, band, 0, 1.1, 0, 0.66, 0.12, 0.66));
+    g.add(M(GEO.cyl, lam(0x8a5230), 0, 1.41, 0, 0.56, 0.03, 0.56)); return g; } },
+  chest: { min: 5.5, max: 18, face: true, make: () => {
+    const g = new THREE.Group(); const wood = lam(0x9a5a2a), gold = toon(0xffd23f);
+    g.add(M(GEO.box, wood, 0, 0.45, 0, 1.6, 0.9, 1.0)); g.add(M(GEO.box, gold, 0, 0.45, 0, 1.64, 0.14, 1.04));
+    g.add(M(GEO.sph, gold, 0, 0.9, 0.05, 0.72, 0.32, 0.42));
+    const lid = M(GEO.box, wood, 0, 1.25, -0.62, 1.6, 0.8, 0.16); lid.rotation.x = -0.35; g.add(lid);
+    g.add(M(GEO.box, gold, 0, 0.62, 0.52, 0.22, 0.26, 0.06));
+    for (let k = 0; k < 4; k++) g.add(M(GEO.disc, gold, rand(-1.1, 1.1), 0.05, rand(0.7, 1.2), 0.2, 0.5, 0.2));
+    return g; } },
+  crater: { min: 8, max: 28, make: (T) => {
+    const g = new THREE.Group(); const r = rand(1.2, 2.4);
+    const f = M(GEO.circle, lam(0x9a98b4), 0, 0.03, 0, r); f.rotation.x = -Math.PI / 2; g.add(f);
+    const rim = M(GEO.rim, lam(T.rock), 0, 0.02, 0, r, r, r * 0.8); rim.rotation.x = -Math.PI / 2; g.add(rim);
+    return g; } },
+  rocket: { min: 8, max: 28, face: true, make: () => {
+    const g = new THREE.Group(); const w = lam(0xf4f4ff), r = lam(pick([0xff4d6d, 0xff8c42, 0x35c6ff]));
+    g.add(M(GEO.cyl, lam(0x5a5a7a), 0, 0.6, 0, 0.5, 0.8, 0.5));
+    g.add(M(GEO.cyl, w, 0, 2.6, 0, 0.7, 3.4, 0.7)); g.add(M(GEO.cone, r, 0, 5.0, 0, 0.7, 1.4, 0.7));
+    for (let k = 0; k < 3; k++) { const p = new THREE.Group(); p.rotation.y = k * 2.094 + 0.5; p.add(M(GEO.box, r, 0, 1.3, 0.8, 0.12, 1.5, 0.8)); g.add(p); }
+    g.add(M(GEO.sph, basic(0x9fe7ff), 0, 3.3, 0.64, 0.3, 0.3, 0.12)); return g; } },
+  coral: { min: 5, max: 22, make: () => {
+    const g = new THREE.Group(); const m = lam(pick([0xff7a9a, 0xff9f43, 0xb57aff, 0xff5fb8, 0xffd23f]));
+    for (let k = 0; k < 4; k++) {
+      const h = rand(1.2, 2.2), br = new THREE.Group(), arm = new THREE.Group();
+      br.rotation.y = k * 1.57 + rand(-0.3, 0.3); arm.rotation.x = rand(0.25, 0.6);
+      arm.add(M(GEO.cyl, m, 0, h / 2, 0, 0.16, h, 0.16)); arm.add(M(GEO.sph, m, 0, h, 0, 0.26)); br.add(arm); g.add(br);
+    }
+    g.add(M(GEO.sph, m, 0, 0.2, 0, 0.5, 0.35, 0.5)); return g; } },
+  seaweed: { min: 5, max: 24, make: () => {
+    const g = new THREE.Group(); const m = lam(pick([0x2fbf8a, 0x3fd35a, 0x1fa36a]));
+    for (let k = 0; k < 3; k++) { const h = rand(1.2, 1.9); const a = M(GEO.sph, m, (k - 1) * 0.45, h, 0, 0.2, h, 0.2); a.rotation.z = rand(-0.2, 0.2); g.add(a); }
+    return g; } },
+  dinoegg: { min: 5.5, max: 22, make: () => {
+    const g = new THREE.Group(); const spot = lam(pick([0x6fe04a, 0xff8c42, 0x35c6ff, 0xb57aff]));
+    const nest = M(GEO.rim, lam(0xc49a5a), 0, 0.2, 0, 1.0, 1.0, 0.9); nest.rotation.x = -Math.PI / 2; g.add(nest);
+    g.add(M(GEO.sph, lam(0xfff4d6), 0, 1.05, 0, 0.8, 1.05, 0.8));
+    for (let k = 0; k < 6; k++) { const th = rand(0, 6.28), ph = rand(0.5, 2.0); g.add(M(GEO.sph, spot, 0.78 * Math.sin(ph) * Math.cos(th), 1.05 + 1.02 * Math.cos(ph), 0.78 * Math.sin(ph) * Math.sin(th), 0.2)); }
+    return g; } },
+  blocks: { min: 5.5, max: 22, make: () => {
+    const g = new THREE.Group(); let y = 0; const n = 2 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < n; k++) { const s = rand(0.9, 1.3) * (1 - k * 0.12); const b = M(GEO.box, lam(pick(BRIGHT)), rand(-0.15, 0.15), y + s / 2, rand(-0.15, 0.15), s); b.rotation.y = rand(-0.5, 0.5); g.add(b); y += s; }
+    return g; } },
+  glowshroom: { min: 5, max: 22, make: () => {
+    const g = new THREE.Group(); g.add(M(GEO.cyl, lam(0xe8e0ff), 0, 0.65, 0, 0.3, 1.3, 0.3));
+    g.add(M(GEO.sph, basic(pick([0x35f0ff, 0xff5fd2, 0xb57aff, 0x9dff6a])), 0, 1.4, 0, 1.2, 0.7, 1.2));
+    const w = basic(0xffffff); g.add(M(GEO.sph, w, 0.5, 1.72, 0.55, 0.16)); g.add(M(GEO.sph, w, -0.6, 1.66, 0.3, 0.14));
+    return g; } },
 };
 
 /* ================= level building ================= */
@@ -533,6 +634,7 @@ const G = {
   spawnT: 0, balloonT: 0, power: null, powerT: 0, powerDur: 1, freezeT: 0, shieldT: 0, zapT: 0,
   firing: false, aimActive: false, aim: { x: 0, y: 0 }, fireT: 0, spin: 0, flashT: 0, lastTargetPt: null,
   boss: null, jumpS: null, landed: false, shake: 0, slowmo: 1, time: 0, attract: false, far: null, hintOn: false,
+  friends: [],
 };
 const level = { group: null, disposables: [] };
 const track = o => { level.disposables.push(o); return o; };
@@ -576,11 +678,22 @@ function buildFar(T) {
     }
   }
   const cloudC = T.night ? 0x6a5aa8 : 0xffffff;
-  for (let k = 0; k < (T.night ? 4 : 9); k++) {
+  if (T.bubbleSky) {
+    const bm = cached('farBubble', () => new THREE.MeshPhongMaterial({ color: 0xe8fcff, transparent: true, opacity: 0.4, shininess: 120, specular: 0xffffff, depthWrite: false, fog: false }));
+    for (let k = 0; k < 14; k++) {
+      const a = rand(0, Math.PI * 2), r = rand(80, 150), y = rand(14, 50);
+      for (let j = 0; j < 3; j++) g.add(M(GEO.sph, bm, Math.cos(a) * r + rand(-6, 6), y + j * rand(4, 7), Math.sin(a) * r + rand(-6, 6), rand(1.5, 4.5)));
+    }
+  } else for (let k = 0; k < (T.night ? 4 : 9); k++) {
     const a = rand(0, Math.PI * 2), r = rand(90, 160), y = rand(28, 46), cl = new THREE.Group();
     cl.position.set(Math.cos(a) * r, y, Math.sin(a) * r);
     cl.add(M(GEO.sph, farMat(cloudC), 0, 0, 0, 8, 4.2, 5)); cl.add(M(GEO.sph, farMat(cloudC), 6.5, -0.8, 0, 6, 3.6, 4.5)); cl.add(M(GEO.sph, farMat(cloudC), -6, -1, 0.5, 5.5, 3.2, 4));
     g.add(cl);
+  }
+  if (T.planet) {
+    g.add(M(GEO.sph, farMat(0xffa94d), -58, 60, -165, 15));
+    g.add(M(GEO.sph, farMat(0xff7a5a), -58, 63, -165, 15.2, 3, 15.2));
+    const ring = M(GEO.ring, farBasic(0xffe08a), -58, 60, -165, 14, 14, 20); ring.rotation.set(1.25, 0.25, 0.3); g.add(ring);
   }
   if (T.night) {
     g.add(M(GEO.circle, farBasic(0xfff6d8), 45, 62, -160, 8));
@@ -622,7 +735,7 @@ function buildLevel(i, attract) {
   G.L = attract ? 900 : Math.round(d.truckSpeed * d.duration);
   const L = G.L;
   scene.background = track(skyTex(T.sky, T.horizon));
-  scene.fog.color.setHex(T.horizon); scene.fog.near = T.night ? 30 : 45; scene.fog.far = T.night ? 150 : 175;
+  scene.fog.color.setHex(T.horizon); scene.fog.near = T.fogNear || (T.night ? 30 : 45); scene.fog.far = T.fogFar || (T.night ? 150 : 175);
   hemi.color.setHex(T.night ? 0xb0a0ff : 0xffffff); hemi.groundColor.setHex(T.night ? 0x40307a : 0x9a7fb8); hemi.intensity = T.night ? 0.85 : 0.72;
   sunLight.intensity = T.night ? 0.4 : 0.78;
   groundMat.map = track(groundTex(T)); groundMat.needsUpdate = true;
@@ -752,12 +865,9 @@ function makeZombie(o) {
   head.add(M(GEO.box, toon(0x6a1f45), 0, -0.24, 0.44, 0.3, 0.1, 0.08)); head.add(M(GEO.box, white, 0.07, -0.19, 0.48, 0.08, 0.08, 0.04));
   head.add(M(GEO.sph, toon(0xff9fc8), -0.36, -0.12, 0.3, 0.09, 0.06, 0.05)); head.add(M(GEO.sph, toon(0xff9fc8), 0.36, -0.12, 0.3, 0.09, 0.06, 0.05));
   let prop = null;
-  if (o.boss && o.crown) {
-    const gm = toon(0xffc400); head.add(M(GEO.cyl, gm, 0, 0.55, 0, 0.42, 0.25, 0.42));
-    for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; head.add(M(GEO.cone, gm, Math.cos(a) * 0.34, 0.8, Math.sin(a) * 0.34, 0.11, 0.3, 0.11)); }
-    head.add(M(GEO.sph, toon(0xff4d6d), 0, 0.55, 0.42, 0.09));
-  } else if (o.boss) {
-    head.add(M(GEO.cone, toon(pick(HATC)), 0, 0.78, 0, 0.3, 0.65, 0.3)); head.add(M(GEO.sph, white, 0, 1.12, 0, 0.12));
+  if (o.boss) {
+    prop = addBossHat(head, o.hat || 'party', white, black);
+    if (o.balloons) addBalloonBunch(head, white);
   } else if (o.variant === 'tough') {
     head.add(M(GEO.cyl, toon(0x9fb3d8), 0, 0.5, 0, 0.47, 0.5, 0.47)); head.add(M(GEO.cyl, toon(0x7f93b8), 0, 0.27, 0, 0.53, 0.06, 0.53));
   } else if (o.variant === 'runner') {
@@ -770,6 +880,78 @@ function makeZombie(o) {
     head.add(M(GEO.cone, toon(0xffc400), 0, 0.78, 0, 0.3, 0.6, 0.3));
   }
   return { g, inner, legL, legR, armL, armR, head, pL, pR, prop, mats: [skin, shirt], shirtC };
+}
+// Boss hats (head-local coords: head is ~0.56 wide, top at y≈0.52). Returns a spinning prop if any.
+function addBossHat(head, hat, white, black) {
+  switch (hat) {
+    case 'crown': {
+      const gm = toon(0xffc400); head.add(M(GEO.cyl, gm, 0, 0.55, 0, 0.42, 0.25, 0.42));
+      for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; head.add(M(GEO.cone, gm, Math.cos(a) * 0.34, 0.8, Math.sin(a) * 0.34, 0.11, 0.3, 0.11)); }
+      head.add(M(GEO.sph, toon(0xff4d6d), 0, 0.55, 0.42, 0.09));
+      return null;
+    }
+    case 'pirate': {
+      head.add(M(GEO.cyl, black, 0, 0.42, 0, 0.8, 0.08, 0.52));
+      head.add(M(GEO.sph, black, 0, 0.5, 0, 0.5, 0.36, 0.44));
+      head.add(M(GEO.cyl, toon(0xff4d6d), 0, 0.5, 0, 0.51, 0.1, 0.45));
+      head.add(M(GEO.star, basic(0xffd23f), 0, 0.68, 0.39, 0.13));
+      return null;
+    }
+    case 'astronaut': {
+      head.add(M(GEO.cyl, white, 0, -0.58, 0, 0.62, 0.16, 0.6));
+      head.add(M(GEO.cyl, black, 0, 0.92, 0, 0.025, 0.3, 0.025)); head.add(M(GEO.sph, basic(0xff4d6d), 0, 1.1, 0, 0.08));
+      head.add(M(GEO.sph, bubbleMat, 0, 0.02, 0, 0.84));
+      return null;
+    }
+    case 'viking': {
+      head.add(M(GEO.sph, toon(0xb8c4d8), 0, 0.36, 0, 0.6, 0.36, 0.56));
+      head.add(M(GEO.cyl, toon(0xffc400), 0, 0.26, 0, 0.6, 0.08, 0.56));
+      for (const s of [-1, 1]) { const h = M(GEO.cone, toon(0xfff4d6), s * 0.62, 0.62, 0, 0.13, 0.55, 0.13); h.rotation.z = -s * 0.8; head.add(h); }
+      return null;
+    }
+    case 'wizard': {
+      const m = toon(0x6a4ad8);
+      head.add(M(GEO.disc, m, 0, 0.42, 0, 0.8, 0.35, 0.8));
+      const hg = new THREE.Group(); hg.rotation.z = -0.15; head.add(hg);
+      hg.add(M(GEO.cone, m, 0, 1.05, 0, 0.45, 1.3, 0.45));
+      const sm = basic(0xffd23f); hg.add(M(GEO.star, sm, 0.04, 0.68, 0.36, 0.11)); hg.add(M(GEO.star, sm, -0.1, 1.0, 0.26, 0.08)); hg.add(M(GEO.star, sm, 0.08, 1.28, 0.15, 0.06));
+      return null;
+    }
+    case 'propeller': {
+      head.add(M(GEO.sph, toon(0x35c6ff), 0, 0.3, 0, 0.54, 0.34, 0.5));
+      head.add(M(GEO.box, toon(0xff4d6d), 0, 0.3, 0.45, 0.5, 0.06, 0.22));
+      head.add(M(GEO.cyl, black, 0, 0.74, 0, 0.04, 0.3, 0.04));
+      const p = new THREE.Group(); p.position.y = 0.9; head.add(p);
+      p.add(M(GEO.box, toon(0xffd23f), 0, 0, 0, 1.6, 0.04, 0.22)); p.add(M(GEO.box, toon(0xff4d6d), 0, 0.01, 0, 0.22, 0.04, 1.6)); p.add(M(GEO.sph, white, 0, 0.03, 0, 0.09));
+      return p;
+    }
+    case 'tophat': {
+      head.add(M(GEO.cyl, black, 0, 0.48, 0, 0.56, 0.05, 0.56));
+      head.add(M(GEO.cyl, black, 0, 0.85, 0, 0.36, 0.75, 0.36));
+      head.add(M(GEO.cyl, toon(0xff4d6d), 0, 0.6, 0, 0.37, 0.14, 0.37));
+      return null;
+    }
+    case 'cowboy': {
+      const br = toon(0xb0703a);
+      head.add(M(GEO.cyl, br, 0, 0.42, 0, 0.9, 0.06, 0.78));
+      for (const s of [-1, 1]) { const c = M(GEO.box, br, s * 0.86, 0.5, 0, 0.32, 0.05, 0.8); c.rotation.z = s * 0.6; head.add(c); }
+      head.add(M(GEO.cylT, br, 0, 0.66, 0, 0.42, 0.45, 0.38));
+      head.add(M(GEO.cyl, toon(0x5a3a2a), 0, 0.5, 0, 0.43, 0.1, 0.39));
+      return null;
+    }
+    default: {
+      head.add(M(GEO.cone, toon(pick(HATC)), 0, 0.78, 0, 0.3, 0.65, 0.3)); head.add(M(GEO.sph, white, 0, 1.12, 0, 0.12));
+      return null;
+    }
+  }
+}
+function addBalloonBunch(head, white) {
+  const g = new THREE.Group(); g.position.y = 1.2; head.add(g);
+  for (const [x, y, z, c] of [[-0.6, 1.5, 0.05, 0xff4d6d], [0.6, 1.6, -0.05, 0x35c6ff], [0, 2.25, 0, 0xffd23f]]) {
+    g.add(M(GEO.sph, toon(c), x, y, z, 0.5, 0.62, 0.5)); g.add(M(GEO.cone, toon(c), x, y - 0.66, z, 0.1, 0.14, 0.1));
+    const dy = y - 0.7, len = Math.hypot(x, dy);
+    const s = M(GEO.cyl, white, x / 2, dy / 2, z / 2, 0.02, len, 0.02); s.rotation.z = -Math.atan2(x, dy); g.add(s);
+  }
 }
 function makeHero(key) {
   const m = toon(SQUAD[key].hex), w = toon(0xffffff), dark = toon(0x1d1633);
@@ -835,7 +1017,7 @@ function updateConfetti(dt) {
 /* ================= bullets ================= */
 const BULLET_COLORS = [0xffd23f, 0xff5fa2, 0x35c6ff, 0x6fe04a];
 const bullets = [];
-for (let k = 0; k < 60; k++) {
+for (let k = 0; k < 120; k++) {
   const mesh = new THREE.Mesh(GEO.bullet, new THREE.MeshBasicMaterial({ color: 0xffd23f })); mesh.visible = false; scene.add(mesh);
   bullets.push({ mesh, active: false, pos: new V3(), end: new V3(), target: null, dmg: 0 });
 }
@@ -908,6 +1090,7 @@ const Sound = (() => {
   return {
     init,
     shoot() { tone(rand(700, 820), 0.07, 'square', 0.05, 260); noise(0.04, 0.05, 3000); },
+    friendShot() { tone(rand(1250, 1550), 0.05, 'triangle', 0.022, rand(750, 900)); },
     pop() { tone(rand(380, 460), 0.14, 'sine', 0.35, rand(1100, 1400)); noise(0.09, 0.18, 1800); tone(900, 0.06, 'triangle', 0.1, 1600, 0.05); },
     hit() { tone(rand(240, 290), 0.05, 'triangle', 0.1, 170); },
     hurt() { tone(320, 0.4, 'sine', 0.45, 80); tone(160, 0.35, 'square', 0.07, 60, 0.02); noise(0.25, 0.2, 500); },
@@ -964,7 +1147,7 @@ function spawnZombie(o = {}) {
     const r = Math.random();
     if (r < 0.05 && !G.attract) variant = 'gold'; else if (r < 0.05 + d.tough) variant = 'tough'; else if (r < 0.05 + d.tough + d.runner) variant = 'runner';
   }
-  const z = makeZombie({ variant, boss: o.boss, crown: o.crown });
+  const z = makeZombie({ variant, boss: o.boss, hat: o.hat, balloons: o.balloons });
   z.type = 'z'; z.variant = variant; z.boss = !!o.boss; z.gold = variant === 'gold';
   z.scale = o.boss ? o.scale : variant === 'runner' ? 0.85 : variant === 'tough' ? 1.12 : 1;
   z.g.scale.setScalar(z.scale);
@@ -1053,7 +1236,13 @@ function hitZombie(z, dmg) {
   z.hp -= dmg; z.flashT = 0.08; z.sq = 0.2;
   if (z.hp <= 0) { killZombie(z, true); return; }
   Sound.hit();
-  if (z.boss) updateBossBar();
+  if (z.boss) {
+    updateBossBar();
+    if (G.T.bossStyle === 'grow' && !z.grown && z.hp < z.maxHp * 0.5) {
+      z.grown = true; z.growT = 1; z.scale0 = z.scale; z.speed *= 1.2; z.stompT = Math.min(z.stompT, 1.2);
+      banner("HE'S GETTING BIGGER!", 'Keep popping!', 'small pink'); Sound.roar(); G.shake = Math.max(G.shake, 0.6);
+    }
+  }
   targetPoint(z, _c); burst(_c, 4, [z.shirtC, 0xffffff], 4, 2, 0.8);
 }
 function killZombie(z, scored) {
@@ -1080,13 +1269,12 @@ function popBalloon(b) {
 }
 
 /* ================= powers ================= */
-let hoodHero = null;
 function activatePower(key) {
   const sq = SQUAD[key];
   endPower(true);
   G.power = key; G.powerT = G.powerDur = sq.dur;
-  hoodHero = makeHero(key); hoodHero.scale.setScalar(0.01); hoodHero.position.set(-1.1, 0, -3.5); hoodHero.userData.t = 0; hood.add(hoodHero);
-  banner(`<span class="hsvg">${heroSVG(key)}</span>${sq.name.toUpperCase()}!`, sq.power, 'hero small');
+  const joined = addFriend(key);
+  banner(`<span class="hsvg">${heroSVG(key)}</span>${sq.name.toUpperCase()}${joined ? '<br>JOINS THE TRUCK!' : '!'}`, sq.power, 'hero small');
   Sound.power();
   $('power').hidden = false; $('pface').innerHTML = heroSVG(key); $('pface').style.background = sq.color + '33';
   $('pname').textContent = sq.name; $('pfill').style.background = sq.color;
@@ -1095,9 +1283,83 @@ function activatePower(key) {
   if (key === 'pink') { G.hearts = Math.min(5, G.hearts + 2); updateHearts(); G.shieldT = sq.dur; $('shieldfx').classList.add('on'); }
 }
 function endPower(silent) {
-  if (hoodHero) { hood.remove(hoodHero); hoodHero = null; }
   G.power = null; G.powerT = 0; G.freezeT = 0; G.shieldT = 0;
   $('power').hidden = true; $('frost').classList.remove('on'); $('shieldfx').classList.remove('on');
+}
+
+/* ================= friends on the truck (companions) ================= */
+// hood-local slots [x, z]; the first three are the normal ones, extras only if more friends ever join
+const FRIEND_SLOTS = [[-1.2, -3.5], [1.2, -3.5], [0.62, -4.05], [-0.62, -4.05], [0, -4.4]];
+const FRIEND_RANGE = 60, FRIEND_RATE = 0.5;
+const _fw = new V3(), _ft = new V3();
+function addFriend(key) {
+  const have = G.friends.find(f => f.key === key);
+  if (have) { have.t = 0; return false; } // same colour again: just re-pop
+  const slot = FRIEND_SLOTS[Math.min(G.friends.length, FRIEND_SLOTS.length - 1)];
+  const obj = makeHero(key); obj.scale.setScalar(0.01); obj.position.set(slot[0], 0, slot[1]);
+  const yaw = Math.atan2(-slot[0], -slot[1]); obj.rotation.y = yaw; hood.add(obj);
+  G.friends.push({ key, obj, x: slot[0], z: slot[1], t: 0, fireT: rand(0.3, 0.7), target: null, yaw, kick: 0, ph: rand(0, 6) });
+  renderFriendsHud();
+  return true;
+}
+function clearFriends() {
+  for (const f of G.friends) hood.remove(f.obj);
+  G.friends = []; renderFriendsHud();
+}
+function renderFriendsHud() {
+  $('friends').innerHTML = G.friends.map(f => `<div class="fr" style="background:${SQUAD[f.key].color}33">${heroSVG(f.key)}</div>`).join('');
+}
+function friendCanSee(z) {
+  if (!z.alive || z.state === 'rise') return false;
+  targetPoint(z, _ft); if (_ft.distanceTo(camera.position) > FRIEND_RANGE) return false;
+  _ft.project(camera);
+  return _ft.z > -1 && _ft.z < 1 && Math.abs(_ft.x) < 1.02 && Math.abs(_ft.y) < 1.05;
+}
+function pickFriendTarget(f) {
+  let best = null, bd = 1e9, alt = null, ad = 1e9;
+  for (const z of G.zombies) {
+    if (!friendCanSee(z)) continue;
+    const d = z.g.position.distanceToSquared(camera.position);
+    if (d < ad) { ad = d; alt = z; }
+    if (d < bd && !G.friends.some(o => o !== f && o.target === z)) { bd = d; best = z; }
+  }
+  return best || alt; // spread out over different zombies when there is a choice
+}
+function updateFriends(dt) {
+  if (!G.friends.length) return;
+  const active = G.state === 'play' || G.state === 'boss';
+  for (const f of G.friends) {
+    f.t += dt; const o = f.obj, arm = o.userData.armR;
+    o.scale.setScalar(Math.max(0.01, 0.34 * easeOutBack(Math.min(1, f.t / 0.45))));
+    if (f.target && (!active || !f.target.alive || !friendCanSee(f.target))) f.target = null;
+    f.fireT -= dt;
+    if (active && f.fireT <= 0) {
+      f.fireT = FRIEND_RATE * rand(0.8, 1.25);
+      f.target = pickFriendTarget(f);
+      f.shoot = !!f.target;
+    }
+    let want;
+    if (f.target) { targetPoint(f.target, _fw); hood.worldToLocal(_fw); want = Math.atan2(_fw.x - f.x, _fw.z - f.z); }
+    else want = Math.atan2(-f.x, -f.z); // face the camera
+    let dy = want - f.yaw; dy = ((dy + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
+    f.yaw += dy * Math.min(1, dt * 14); o.rotation.y = f.yaw;
+    f.kick = Math.max(0, f.kick - dt * 5);
+    if (f.target) {
+      arm.rotation.set(-1.5 + f.kick, 0, 0);
+      o.position.y = Math.abs(Math.sin(f.t * 8 + f.ph)) * 0.025;
+      if (f.shoot) {
+        f.shoot = false; f.kick = 0.45;
+        o.updateMatrixWorld(true);
+        _fw.set(0.46, 1.45, 0.66); o.localToWorld(_fw);
+        targetPoint(f.target, _ft);
+        spawnBullet(_fw, _ft, f.target, 1, SQUAD[f.key].hex, false);
+        Sound.friendShot();
+      }
+    } else {
+      arm.rotation.set(0, 0, 2.5 + Math.sin(f.t * 10 + f.ph) * 0.4);
+      o.position.y = Math.abs(Math.sin(f.t * 5 + f.ph)) * 0.06;
+    }
+  }
 }
 function makeBolt(to) {
   const g = new THREE.Group(); const top = new V3(to.x + rand(-3, 3), to.y + 24, to.z + rand(-3, 3));
@@ -1141,11 +1403,13 @@ function lose() {
 }
 function startBoss() {
   G.state = 'boss';
-  const T = G.T; const mega = !!T.mega;
-  const z = spawnZombie({ boss: true, crown: mega, scale: mega ? 3.5 : 2.6, sAhead: 44, lat: 0 });
-  z.stompT = 4; z.jumpT = 0; G.boss = z;
+  const T = G.T; const mega = !!T.mega, style = T.bossStyle;
+  const z = spawnZombie({ boss: true, hat: T.bossHat, balloons: !!T.bossBalloons, scale: mega ? 3.5 : 2.6, sAhead: 44, lat: 0 });
+  z.stompT = style === 'fly' ? 3 : 4; z.jumpT = 0; z.jumpDur = 0.75; z.flyY = 0; z.grown = false; z.growT = 0; G.boss = z;
   $('bossbar').hidden = false; $('bossName').textContent = T.boss; updateBossBar();
-  banner(T.boss + '!', mega ? 'The MEGA boss is here!' : 'Pop the big boss!', 'pink');
+  const sub = G.level === LEVELS.length - 1 ? 'The FINAL boss is here!' : mega ? 'The MEGA boss is here!'
+    : ({ sway: 'He wiggles side to side!', hop: 'Boing! He can jump!', fly: 'He can fly!' })[style] || 'Pop the big boss!';
+  banner(T.boss + '!', sub, 'pink');
   Sound.roar(); G.shake = 0.6;
 }
 function updateBossBar() { if (G.boss) $('bossFill').style.width = (Math.max(0, G.boss.hp) / G.boss.maxHp * 100) + '%'; }
@@ -1166,8 +1430,8 @@ function showResult(win) {
   const card = $('resultCard');
   if (win) {
     const stars = G.hearts >= 4 ? 3 : G.hearts >= 2 ? 2 : 1;
-    save.stars[i] = Math.max(save.stars[i] || 0, stars); save.unlocked = Math.max(save.unlocked, Math.min(10, i + 2)); writeSave();
-    if (i === 9) { showVictory(); return; }
+    save.stars[i] = Math.max(save.stars[i] || 0, stars); save.unlocked = Math.max(save.unlocked, Math.min(LEVELS.length, i + 2)); writeSave();
+    if (i === LEVELS.length - 1) { showVictory(); return; }
     card.innerHTML = `<h2 class="head">Level ${i + 1} done!</h2>
       <div class="bigstars">${[0, 1, 2].map(k => starSVG(k < stars)).join('')}</div>
       <p class="sub">You popped <b>${G.popped}</b> zombies and scored <b>${G.score}</b> points.</p>
@@ -1189,7 +1453,7 @@ function showVictory() {
   G.state = 'victory';
   $('squadWin').innerHTML = SQUAD_KEYS.map(k => `<div class="mem">${heroSVG(k)}<span class="nm">${SQUAD[k].name}</span></div>`).join('');
   const total = save.stars.reduce((a, b) => a + b, 0);
-  $('winStars').innerHTML = `You earned <b>${total}</b> out of 30 stars.`;
+  $('winStars').innerHTML = `You earned <b>${total}</b> out of ${LEVELS.length * 3} stars.`;
   show('victory');
 }
 
@@ -1201,10 +1465,10 @@ function heroPlan(i) {
 function resetRun() {
   G.hearts = 5; G.score = 0; G.popped = 0; G.s = 0; G.speed = 0; G.targetSpeed = 0; G.timers = []; G.boss = null;
   G.spawnT = 1.8; G.balloonT = 2.5; G.slowmo = 1; G.shake = 0; G.landed = false; G.firing = false; G.fireT = 0;
-  endPower(true); $('bossbar').hidden = true; $('banners').innerHTML = ''; $('floaters').innerHTML = '';
+  endPower(true); clearFriends(); $('bossbar').hidden = true; $('banners').innerHTML = ''; $('floaters').innerHTML = '';
 }
 function startLevel(i) {
-  i = clamp(i, 0, 9);
+  i = clamp(i, 0, LEVELS.length - 1);
   Sound.init(); tryWakeLock();
   resetRun(); buildLevel(i, false);
   const L = G.L, T = G.T;
@@ -1236,10 +1500,18 @@ function goTitle() {
   resetRun(); G.paused = false; $('hud').hidden = true; $('cross').hidden = true;
   buildLevel(0, true); G.state = 'title'; G.s = 10; show('title');
 }
-function openLevels() {
+function nextLevelIndex() {
+  let i = save.stars.findIndex((s, k) => k < save.unlocked && !s); if (i < 0) i = Math.min(save.unlocked - 1, LEVELS.length - 1);
+  return i;
+}
+function openLevels(world) {
   if (G.state !== 'title') goTitle();
+  if (world !== 0 && world !== 1) world = nextLevelIndex() >= 10 ? 1 : 0;
+  $('tabW1').classList.toggle('on', world === 0); $('tabW2').classList.toggle('on', world === 1);
+  $('tabW1').setAttribute('aria-pressed', world === 0); $('tabW2').setAttribute('aria-pressed', world === 1);
   const grid = $('grid');
   grid.innerHTML = LEVELS.map((T, i) => {
+    if (Math.floor(i / 10) !== world) return '';
     const locked = i >= save.unlocked;
     return `<button class="lvl${locked ? ' locked' : ''}" data-i="${i}" aria-label="Level ${i + 1}, ${T.name}${locked ? ', locked' : ''}" style="background:linear-gradient(180deg, ${hex(T.sky)} 0 55%, ${hex(T.ground)} 55% 100%)">
       ${locked ? LOCK_SVG : ''}<span class="num">${i + 1}</span><span class="nm">${T.name}</span><span class="st">${[0, 1, 2].map(k => starSVG(k < (save.stars[i] || 0))).join('')}</span></button>`;
@@ -1257,12 +1529,13 @@ function tryWakeLock() { try { if (navigator.wakeLock) navigator.wakeLock.reques
 /* ================= buttons ================= */
 $('btnPlay').onclick = () => {
   Sound.init(); tryFullscreen();
-  let i = save.stars.findIndex((s, k) => k < save.unlocked && !s); if (i < 0) i = Math.min(save.unlocked - 1, 9);
-  startLevel(i);
+  startLevel(nextLevelIndex());
 };
 $('btnLevels').onclick = () => { Sound.init(); openLevels(); };
 $('btnBackLv').onclick = () => show('title');
-$('btnUnlock').onclick = () => { save.unlocked = 10; writeSave(); openLevels(); };
+$('btnUnlock').onclick = () => { save.unlocked = LEVELS.length; writeSave(); openLevels($('tabW2').classList.contains('on') ? 1 : 0); };
+$('tabW1').onclick = () => openLevels(0);
+$('tabW2').onclick = () => openLevels(1);
 $('btnSound').onclick = $('btnPSound').onclick = () => { Sound.init(); Sound.setMuted(!Sound.muted); setSoundLabels(); };
 $('btnPause').onclick = pauseGame;
 $('btnResume').onclick = resumeGame;
@@ -1361,22 +1634,10 @@ function updateZombies(dt) {
         } else {
           pathPoint(G.s + 2, z.lane, _c);
           const dx = _c.x - z.g.position.x, dz = _c.z - z.g.position.z, d = Math.hypot(dx, dz);
-          const sp = z.speed * (frozen ? 0.25 : 1);
-          if (d > 0.1) { z.g.position.x += dx / d * sp * dt; z.g.position.z += dz / d * sp * dt; }
+          const sp = z.speed * (frozen ? 0.25 : 1) * (z.boss && z.jumpT > 0 && G.T.bossStyle === 'hop' ? 5 : 1);
+          if (d > 0.1) { const st = Math.min(sp * dt, d); z.g.position.x += dx / d * st; z.g.position.z += dz / d * st; }
         }
-        if (z.boss) {
-          if (z.jumpT > 0) {
-            z.jumpT -= dt; z.g.position.y = Math.sin(Math.PI * (1 - Math.max(0, z.jumpT) / 0.75)) * 2.2;
-            if (z.jumpT <= 0) {
-              z.g.position.y = 0; G.shake = Math.max(G.shake, 0.75); Sound.stomp();
-              burst(_c.set(z.g.position.x, 0.3, z.g.position.z), 40, DIRT, 8, 3, 1.2);
-              const nMin = G.T.mega ? 2 : 1;
-              for (let k = 0; k < nMin; k++) { const side = k % 2 ? 1 : -1; spawnZombie({ x: z.g.position.x + side * rand(3, 6), z: z.g.position.z + rand(-1, 3), plain: true }); }
-            }
-          } else if (G.state === 'boss') {
-            z.stompT -= dt; if (z.stompT <= 0) { z.jumpT = 0.75; z.stompT = Math.max(2.8, 5.2 - G.level * 0.2); if (Math.random() < 0.5) Sound.roar(); }
-          }
-        }
+        if (z.boss) updateBoss(z, dt);
         const hx = cam.x - z.g.position.x, hz = cam.z - z.g.position.z;
         if (Math.hypot(hx, hz) < z.hitR && jumpH(G.s) < 2) {
           if (z.boss) { hurt(1); z.knock = 0.6; }
@@ -1388,6 +1649,57 @@ function updateZombies(dt) {
     if (!z.boss && -z.g.position.z < G.s - 6) { z.alive = false; z.dead = true; scene.remove(z.g); z.mats.forEach(m => m.dispose()); }
   }
   if (G.zombies.some(z => z.dead)) G.zombies = G.zombies.filter(z => !z.dead);
+}
+function bossMinion(z, dx, dz) {
+  spawnZombie({ x: z.g.position.x + dx, z: z.g.position.z + dz, plain: true });
+}
+function updateBoss(z, dt) {
+  const T = G.T, style = T.bossStyle;
+  if (z.growT > 0) {
+    z.growT = Math.max(0, z.growT - dt);
+    z.scale = z.scale0 * (1 + 0.35 * easeOutBack(1 - z.growT));
+    z.g.scale.setScalar(z.scale); z.aimR = 0.85 * z.scale; z.hitR = 2.1 * z.scale;
+  }
+  if (style === 'sway') {
+    // zig-zag across the road while coming closer
+    const want = Math.sin(G.clock * 0.9) * 6.5; z.lane = want;
+    pathPoint(-z.g.position.z, want, _c);
+    z.g.position.x += clamp(_c.x - z.g.position.x, -7 * dt, 7 * dt);
+  }
+  if (style === 'fly') {
+    z.lane = Math.sin(G.clock * 0.6) * 4;
+    pathPoint(-z.g.position.z, z.lane, _c);
+    z.g.position.x += clamp(_c.x - z.g.position.x, -3 * dt, 3 * dt);
+    z.flyY = Math.min(3.5, z.flyY + dt * 2.5);
+    z.g.position.y = z.flyY + Math.sin(G.clock * 2) * 0.4 * (z.flyY / 3.5);
+    z.legL.rotation.x *= 0.3; z.legR.rotation.x *= 0.3; // dangly legs
+    if (G.state === 'boss') {
+      z.stompT -= dt;
+      if (z.stompT <= 0) {
+        z.stompT = Math.max(3.2, 5.2 - G.level * 0.15);
+        bossMinion(z, -rand(2, 4), rand(0, 3)); bossMinion(z, rand(2, 4), rand(0, 3));
+        if (Math.random() < 0.5) Sound.roar();
+      }
+    }
+    return;
+  }
+  const hop = style === 'hop';
+  if (z.jumpT > 0) {
+    z.jumpT -= dt; z.g.position.y = Math.sin(Math.PI * (1 - Math.max(0, z.jumpT) / z.jumpDur)) * (hop ? 5 : 2.2);
+    if (z.jumpT <= 0) {
+      z.g.position.y = 0; G.shake = Math.max(G.shake, hop ? 0.85 : 0.75); Sound.stomp();
+      burst(_c.set(z.g.position.x, 0.3, z.g.position.z), hop ? 50 : 40, DIRT, 8, 3, 1.2);
+      const n = hop ? 1 : (T.bossMinions || (T.mega ? 2 : 1));
+      for (let k = 0; k < n; k++) { const side = k % 2 ? 1 : -1; bossMinion(z, side * rand(3, 6) * (k > 1 ? 0.5 : 1), rand(-1, 3) + (k > 1 ? 2 : 0)); }
+    }
+  } else if (G.state === 'boss') {
+    z.stompT -= dt;
+    if (z.stompT <= 0) {
+      z.jumpDur = hop ? 1.1 : 0.75; z.jumpT = z.jumpDur;
+      z.stompT = (hop ? Math.max(2.4, 3.8 - G.level * 0.06) : Math.max(2.8, 5.2 - G.level * 0.2)) * (z.grown ? 0.65 : 1);
+      if (Math.random() < 0.5) Sound.roar();
+    }
+  }
 }
 function updateBubbles(dt) {
   for (const b of G.bubbles) {
@@ -1415,12 +1727,6 @@ function updatePower(dt) {
   G.powerT -= dt;
   $('pfill').style.width = (Math.max(0, G.powerT) / G.powerDur * 100) + '%';
   if (G.power === 'yellow') { G.zapT -= dt; if (G.zapT <= 0) { zapNearest(); G.zapT = 0.8; } }
-  if (hoodHero) {
-    hoodHero.userData.t += dt; const t = hoodHero.userData.t;
-    hoodHero.scale.setScalar(0.34 * Math.min(1, easeOutBack(Math.min(1, t / 0.45))));
-    hoodHero.position.y = Math.abs(Math.sin(t * 5)) * 0.06;
-    hoodHero.userData.armR.rotation.z = 2.5 + Math.sin(t * 10) * 0.4;
-  }
   if (G.powerT <= 0) endPower();
 }
 function placeCamera(dt) {
@@ -1499,6 +1805,7 @@ function update(dt) {
   updateBubbles(wdt);
   updateBullets(dt);
   updatePower(dt);
+  updateFriends(dt);
   updateConfetti(dt);
 }
 
@@ -1510,7 +1817,7 @@ function frame(now) {
   try { update(dt); } catch (err) { console.error(err); }
   renderer.render(scene, camera);
 }
-window.__zpt = { G, startLevel, goTitle };
+window.__zpt = { G, startLevel, goTitle, openLevels, spawnBubble, popBubble, bullets, LEVELS, save, step(n, dt) { for (let k = 0; k < n; k++) update(dt || 0.05); } };
 goTitle();
 requestAnimationFrame(frame);
 })();

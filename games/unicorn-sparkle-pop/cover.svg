@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd8ff"/><stop offset="1" stop-color="#ffe8f7"/></linearGradient>
+  <path id="st" d="M0 -10 L2.9 -3.1 L9.5 -3.1 L4.2 1.2 L5.9 8.1 L0 4.1 L-5.9 8.1 L-4.2 1.2 L-9.5 -3.1 L-2.9 -3.1 Z"/>
+  <path id="ht" d="M0 8 C-1 7 -9 1.5 -9 -3 C-9 -7 -4 -9 0 -4.5 C4 -9 9 -7 9 -3 C9 1.5 1 7 0 8 Z"/>
+</defs>
+<rect width="400" height="300" fill="url(#sky)"/>
+<circle cx="336" cy="52" r="24" fill="#fff08a"/>
+<!-- big sky rainbow -->
+<g fill="none" stroke-width="9" opacity=".85">
+  <path d="M60 140 A140 110 0 0 1 340 140" stroke="#ff7aa8"/>
+  <path d="M69 140 A131 101 0 0 1 331 140" stroke="#ffa66b"/>
+  <path d="M78 140 A122 92 0 0 1 322 140" stroke="#ffe066"/>
+  <path d="M87 140 A113 83 0 0 1 313 140" stroke="#8ee89a"/>
+  <path d="M96 140 A104 74 0 0 1 304 140" stroke="#7cc8ff"/>
+  <path d="M105 140 A95 65 0 0 1 295 140" stroke="#b79bff"/>
+</g>
+<g fill="#fff"><ellipse cx="62" cy="136" rx="30" ry="12"/><ellipse cx="80" cy="128" rx="18" ry="12"/><ellipse cx="338" cy="136" rx="30" ry="12"/><ellipse cx="320" cy="128" rx="18" ry="12"/></g>
+<!-- hills and ground -->
+<ellipse cx="70" cy="150" rx="120" ry="34" fill="#ffc6e5"/><ellipse cx="330" cy="152" rx="130" ry="32" fill="#d8c4ff"/>
+<rect y="138" width="400" height="162" fill="#fff0fa"/>
+<!-- rainbow road -->
+<path d="M188 138 L192 138 L80 300 L-4 300 Z" fill="#ff7aa8"/>
+<path d="M192 138 L196 138 L160 300 L80 300 Z" fill="#ffa66b"/>
+<path d="M196 138 L200 138 L200 300 L160 300 Z" fill="#ffe066"/>
+<path d="M200 138 L204 138 L240 300 L200 300 Z" fill="#8ee89a"/>
+<path d="M204 138 L208 138 L320 300 L240 300 Z" fill="#7cc8ff"/>
+<path d="M208 138 L212 138 L404 300 L320 300 Z" fill="#b79bff"/>
+<path d="M186 138 L188 138 L-4 300 L-16 300 Z" fill="#fff"/><path d="M212 138 L214 138 L416 300 L404 300 Z" fill="#fff"/>
+<g fill="#fff" opacity=".8"><use href="#st" transform="translate(120 250) scale(.9)"/><use href="#st" transform="translate(282 262) scale(.9)"/><use href="#st" transform="translate(200 178) scale(.45)"/></g>
+<!-- candy props -->
+<g stroke="#3a1f5c" stroke-width="3"><rect x="24" y="150" width="5" height="46" fill="#fff"/><circle cx="26" cy="146" r="16" fill="#ff5fa8"/><circle cx="26" cy="146" r="9" fill="#fff"/><circle cx="26" cy="146" r="4" fill="#b57aff"/></g>
+<g stroke="#3a1f5c" stroke-width="3"><path d="M360 208 L392 208 L386 236 L366 236 Z" fill="#a6e4ff"/><ellipse cx="376" cy="204" rx="20" ry="12" fill="#ffb3dc"/><circle cx="376" cy="190" r="6" fill="#ff4d7d"/></g>
+
+<!-- left zombie: lavender, sleepy, smiling, with a bow -->
+<g stroke="#3a1f5c" stroke-width="3" stroke-linejoin="round">
+  <rect x="68" y="196" width="10" height="16" rx="5" fill="#dcc6ff"/><rect x="86" y="196" width="10" height="16" rx="5" fill="#dcc6ff"/>
+  <ellipse cx="72" cy="212" rx="9" ry="5" fill="#ff7ac0"/><ellipse cx="92" cy="212" rx="9" ry="5" fill="#ff7ac0"/>
+  <ellipse cx="82" cy="182" rx="24" ry="22" fill="#9fd4ff"/>
+  <path d="M60 172 Q46 158 50 144" fill="none" stroke-width="9" stroke-linecap="round"/><path d="M60 172 Q46 158 50 144" fill="none" stroke="#dcc6ff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M104 172 Q118 158 114 144" fill="none" stroke-width="9" stroke-linecap="round"/><path d="M104 172 Q118 158 114 144" fill="none" stroke="#dcc6ff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="82" cy="140" r="26" fill="#dcc6ff"/>
+  <path d="M99 118 l10 -6 l-2 12 z M99 118 l-6 -10 l12 2 z" fill="#ff5fa8" stroke-width="2.5"/>
+</g>
+<use href="#ht" transform="translate(82 184) scale(.9)" fill="#ff7ab0"/>
+<g stroke="#3a1f5c" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M66 138 q6 4 12 0"/><path d="M86 138 q6 4 12 0"/><path d="M71 150 q11 12 22 0" fill="#d8508f"/></g>
+<circle cx="64" cy="147" r="4" fill="#ff9fc8"/><circle cx="100" cy="147" r="4" fill="#ff9fc8"/>
+
+<!-- right zombie popping into rainbow confetti -->
+<g opacity=".55" stroke="#3a1f5c" stroke-width="3"><circle cx="322" cy="150" r="22" fill="#bff5dc"/><path d="M310 150 q5 4 10 0 M326 150 q5 4 10 0" fill="none" stroke-linecap="round"/><path d="M314 160 q8 9 16 0" fill="#d8508f" stroke-width="2.4"/></g>
+<g>
+  <use href="#st" transform="translate(290 118) rotate(15) scale(1.1)" fill="#ffe066" stroke="#3a1f5c" stroke-width="2"/>
+  <use href="#ht" transform="translate(350 118) rotate(-12) scale(1.2)" fill="#ff5fa8" stroke="#3a1f5c" stroke-width="2"/>
+  <use href="#st" transform="translate(356 176) rotate(-20) scale(.9)" fill="#7cc8ff" stroke="#3a1f5c" stroke-width="2"/>
+  <use href="#ht" transform="translate(292 180) rotate(18)" fill="#b79bff" stroke="#3a1f5c" stroke-width="2"/>
+  <use href="#st" transform="translate(322 104) scale(.7)" fill="#8ee89a" stroke="#3a1f5c" stroke-width="2"/>
+  <rect x="302" y="132" width="8" height="5" fill="#ffa66b" transform="rotate(30 306 134)"/><rect x="340" y="140" width="8" height="5" fill="#ff7aa8" transform="rotate(-25 344 142)"/>
+  <rect x="334" y="192" width="8" height="5" fill="#ffe066" transform="rotate(50 338 194)"/><rect x="304" y="196" width="8" height="5" fill="#8ee89a" transform="rotate(-40 308 198)"/>
+  <rect x="366" y="152" width="8" height="5" fill="#b79bff" transform="rotate(10 370 154)"/><rect x="278" y="148" width="8" height="5" fill="#7cc8ff" transform="rotate(70 282 150)"/>
+</g>
+<!-- sparkle shot from the horn -->
+<path d="M266 110 L296 128" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+<path d="M266 110 L296 128" stroke="#ffe066" stroke-width="3" stroke-linecap="round"/>
+
+<!-- the unicorn -->
+<g stroke="#3a1f5c" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+  <!-- rainbow tail -->
+  <circle cx="140" cy="206" r="11" fill="#ff7aa8"/><circle cx="130" cy="218" r="10" fill="#ffa66b"/><circle cx="124" cy="232" r="9.5" fill="#ffe066"/><circle cx="124" cy="246" r="9" fill="#8ee89a"/><circle cx="130" cy="258" r="8" fill="#7cc8ff"/><circle cx="140" cy="265" r="7" fill="#b79bff"/>
+  <!-- legs -->
+  <rect x="156" y="226" width="13" height="44" rx="6" fill="#fff" transform="rotate(18 162 228)"/>
+  <rect x="210" y="226" width="13" height="44" rx="6" fill="#fff" transform="rotate(-24 216 228)"/>
+  <rect x="172" y="228" width="13" height="42" rx="6" fill="#f3ecff" transform="rotate(-10 178 230)"/>
+  <rect x="222" y="226" width="13" height="42" rx="6" fill="#f3ecff" transform="rotate(26 228 228)"/>
+  <!-- body -->
+  <ellipse cx="192" cy="216" rx="46" ry="27" fill="#fff"/>
+  <!-- neck and head -->
+  <path d="M214 204 C222 186 226 170 232 158 L256 170 C250 186 244 200 236 214 Z" fill="#fff"/>
+  <ellipse cx="248" cy="160" rx="22" ry="19" fill="#fff"/>
+  <ellipse cx="266" cy="170" rx="13" ry="11" fill="#ffe0ef"/>
+  <path d="M236 144 L240 128 L248 142 Z" fill="#fff"/>
+  <path d="M250 142 L262 102 L262 146 Z" fill="#ffd23f"/>
+</g>
+<g stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M254 128 L262 124"/><path d="M252 136 L262 132"/></g>
+<!-- rainbow mane -->
+<g stroke="#3a1f5c" stroke-width="3">
+  <circle cx="236" cy="146" r="9" fill="#ff7aa8"/><circle cx="228" cy="158" r="9" fill="#ffa66b"/><circle cx="222" cy="171" r="9" fill="#ffe066"/><circle cx="217" cy="184" r="8.5" fill="#8ee89a"/><circle cx="213" cy="197" r="8" fill="#7cc8ff"/><circle cx="244" cy="140" r="7" fill="#b79bff"/>
+</g>
+<path d="M246 160 q5 -5 10 0" fill="none" stroke="#3a1f5c" stroke-width="3" stroke-linecap="round"/>
+<circle cx="256" cy="170" r="4.5" fill="#ff9fc8"/>
+<path d="M266 176 q4 3 8 -1" fill="none" stroke="#3a1f5c" stroke-width="2.4" stroke-linecap="round"/>
+<g fill="#b98cff"><ellipse cx="150" cy="272" rx="9" ry="4"/><ellipse cx="236" cy="272" rx="9" ry="4"/></g>
+<!-- sparkle trail -->
+<g stroke="#3a1f5c" stroke-width="1.5">
+  <use href="#st" transform="translate(110 280) scale(.6)" fill="#ffe066"/>
+  <use href="#ht" transform="translate(96 262) scale(.6)" fill="#ff7ac0"/>
+  <use href="#st" transform="translate(126 292) scale(.45)" fill="#a6f4ee"/>
+</g>
+</svg>

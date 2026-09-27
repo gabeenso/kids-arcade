@@ -34,5 +34,7 @@ Live at https://gabeenso.github.io/kids-arcade/ via GitHub Pages (deploys from `
 8. Commit to `main` and push. Check the live URL after about a minute.
 
 ## Games
-- `zombie-pop-truck` — 3D (three.js r128) truck rail shooter, 10 levels, cartoon zombies that pop into confetti, Star Squad hero power-ups.
-- Unicorn game — planned, for Gabe's daughter (placeholder card in `games.json`).
+- `zombie-pop-truck` — 3D (three.js r128) truck rail shooter, 20 levels in two worlds, cartoon zombies that pop into confetti, Star Squad friends who join the truck and shoot alongside you, plus timed power-ups. Bosses have styles: stomp, sway, hop, fly, grow.
+- `unicorn-sparkle-pop` — gentler fork of the same engine for a 4-year-old: unicorn on a rainbow road, pastel sleepy zombies that pop into rainbow confetti, 10 levels, three original pop-star friends (Nova, Bella, Jojo) who fly alongside and shoot. The friends are original characters; never make them look like characters from films or TV.
+
+Each game exposes `window.__zpt` debug hooks used by headless tests; leave them in.
