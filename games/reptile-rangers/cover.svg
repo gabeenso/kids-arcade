@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb36b"/><stop offset="1" stop-color="#ffe6b0"/></linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#sky)"/>
+  <circle cx="330" cy="60" r="34" fill="#fff3a0"/>
+  <path d="M0 200 Q60 180 120 196 T240 192 T400 190 V300 H0z" fill="#eb9a63"/>
+  <rect y="228" width="400" height="72" fill="#e07a3f"/>
+  <rect y="228" width="400" height="6" fill="#b9562a"/>
+  <g stroke="#2b1a4a" stroke-width="4" stroke-linejoin="round">
+    <!-- goo monster -->
+    <path d="M300 128c26 0 44 20 44 44 0 24-16 36-44 36s-46-12-46-36c0-24 20-44 46-44z" fill="#9b5cff"/>
+    <ellipse cx="286" cy="164" rx="10" ry="11" fill="#fff"/><ellipse cx="314" cy="164" rx="10" ry="11" fill="#fff"/>
+    <circle cx="282" cy="167" r="5" fill="#2b1a4a" stroke="none"/><circle cx="310" cy="167" r="5" fill="#2b1a4a" stroke="none"/>
+    <path d="M288 182q12 12 24 0z" fill="#5a1f3a" stroke-width="3"/>
+    <!-- water splash shots -->
+    <circle cx="232" cy="160" r="9" fill="#5fd4ff" stroke-width="3"/>
+    <circle cx="206" cy="176" r="7" fill="#5fd4ff" stroke-width="3"/>
+    <!-- bubble with a frilled lizard -->
+    <circle cx="120" cy="112" r="70" fill="#d9f3ff" fill-opacity=".55" stroke="#fff" stroke-width="5"/>
+    <path d="M70 128 q-30 -4 -40 14 q24 -6 44 0z" fill="#b98a5a" stroke-width="3"/>
+    <ellipse cx="108" cy="126" rx="38" ry="18" fill="#b98a5a"/>
+    <path d="M88 140 l-6 18 M126 140 l6 18" stroke-width="9" stroke-linecap="round"/>
+    <path d="M88 140 l-6 18 M126 140 l6 18" stroke="#b98a5a" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="146" cy="108" r="30" fill="#ff9a3d"/>
+    <circle cx="146" cy="108" r="20" fill="#ff5a3a" stroke="none"/>
+    <ellipse cx="156" cy="110" rx="20" ry="14" fill="#b98a5a"/>
+    <circle cx="160" cy="105" r="6" fill="#fff" stroke-width="3"/><circle cx="162" cy="105" r="3" fill="#2b1a4a" stroke="none"/>
+    <path d="M150 118q10 6 22 -1" fill="none" stroke-width="3"/>
+    <ellipse cx="92" cy="72" rx="16" ry="8" fill="#fff" stroke="none" transform="rotate(-35 92 72)"/>
+    <!-- ranger hat -->
+    <ellipse cx="212" cy="262" rx="46" ry="11" fill="#d2a95e"/>
+    <path d="M188 260q0-30 24-30t24 30z" fill="#d2a95e"/>
+    <rect x="189" y="250" width="46" height="6" fill="#7a4a26" stroke="none"/>
+  </g>
+</svg>

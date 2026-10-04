@@ -15,6 +15,22 @@
       "path": "games/unicorn-sparkle-pop/",
       "cover": "games/unicorn-sparkle-pop/cover.svg",
       "color": "#ffc6e8"
+    },
+    {
+      "id": "reptile-rangers",
+      "title": "Reptile Rangers",
+      "tagline": "Splash goo, save reptiles!",
+      "path": "games/reptile-rangers/",
+      "cover": "games/reptile-rangers/cover.svg",
+      "color": "#ffb36b"
+    },
+    {
+      "id": "pool-pals",
+      "title": "Pool Pals",
+      "tagline": "Learn to be safe at the pool!",
+      "path": "games/pool-pals/",
+      "cover": "games/pool-pals/cover.svg",
+      "color": "#5cc8ff"
     }
   ]
 }

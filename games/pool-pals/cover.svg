@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc8ff"/><stop offset="1" stop-color="#d6f4ff"/></linearGradient>
+    <linearGradient id="wat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fd0ff"/><stop offset="1" stop-color="#1f8fe0"/></linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#sky)"/>
+  <circle cx="340" cy="52" r="30" fill="#fff09a"/>
+  <rect y="96" width="400" height="40" fill="#4fbf5a"/>
+  <rect y="130" width="400" height="170" fill="#f2e1bf"/>
+  <g stroke="#2b1a4a" stroke-width="4" stroke-linejoin="round">
+    <rect x="20" y="176" width="360" height="112" rx="16" fill="#fff"/>
+    <rect x="32" y="188" width="336" height="88" rx="10" fill="url(#wat)"/>
+    <!-- Pip, a brick-built pup -->
+    <rect x="160" y="150" width="70" height="60" rx="12" fill="#ffb43d"/>
+    <rect x="146" y="58" width="98" height="86" rx="22" fill="#ffb43d"/>
+    <rect x="160" y="44" width="20" height="14" rx="4" fill="#ffb43d"/>
+    <rect x="210" y="44" width="20" height="14" rx="4" fill="#ffb43d"/>
+    <rect x="136" y="64" width="24" height="40" rx="10" fill="#a8642a" transform="rotate(25 148 64)"/>
+    <rect x="230" y="64" width="24" height="40" rx="10" fill="#a8642a" transform="rotate(-25 242 64)"/>
+    <rect x="166" y="98" width="58" height="38" rx="16" fill="#ffe2a6"/>
+    <rect x="184" y="96" width="22" height="13" rx="6" fill="#4a2a1a" stroke-width="3"/>
+    <path d="M184 118q11 12 22 0" fill="none" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="176" cy="84" rx="7" ry="9" fill="#2b1a4a" stroke="none"/>
+    <ellipse cx="214" cy="84" rx="7" ry="9" fill="#2b1a4a" stroke="none"/>
+    <circle cx="174" cy="81" r="2.5" fill="#fff" stroke="none"/><circle cx="212" cy="81" r="2.5" fill="#fff" stroke="none"/>
+    <path d="M60 240 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="4"/>
+    <path d="M32 214 H368 V276 H32z" fill="#28aaf0" fill-opacity=".55" stroke="none"/>
+    <!-- float ring -->
+    <circle cx="318" cy="226" r="30" fill="#ff3b3b"/>
+    <path d="M318 196v13M318 243v13M288 226h13M335 226h13" stroke="#fff" stroke-width="10"/>
+    <circle cx="318" cy="226" r="30" fill="none"/>
+    <circle cx="318" cy="226" r="16" fill="#4fd0ff"/>
+    <!-- beach ball -->
+    <circle cx="80" cy="150" r="22" fill="#fff"/>
+    <path d="M80 128a22 22 0 0 1 19 11L80 150z" fill="#ff5fa2" stroke-width="2"/>
+    <path d="M99 161a22 22 0 0 1-19 11V150z" fill="#ffd23f" stroke-width="2"/>
+    <path d="M61 161a22 22 0 0 1 0-22l19 11z" fill="#35c6ff" stroke-width="2"/>
+    <circle cx="80" cy="150" r="22" fill="none"/>
+  </g>
+</svg>
